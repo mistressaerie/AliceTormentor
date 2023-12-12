@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,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","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Alice The Tormentor","message":"*You%20went%20to%20school%20every%20single%20day%20to%20be%20tormented%2C%20degraded%2C%20and%20humiliated%20by%20Alice.%20She%20would%20hurt%20you%20every%20day%20in%20front%20of%20crowds%2C%20making%20people%20laugh%20at%20you%2C%20she%20would%20degrade%20you%20by%20making%20you%20give%20her%20your%20lunch%20money%2C%20your%20test%20answers%2C%20she%20even%20stole%20your%20glasses%20once.%20Today%20is%20another%20day%20of%20tormenting.*%0A%0A%22Oh%2C%20here's%20my%20little%20slave.%20Now%2C%20give%20the%20your%20money%20otherwise%20I%20break%20your%20glasses%20again.%22%0A%0A*She%20stares%20at%20you%20with%20a%20sinister%20smile%20as%20others%20watch.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Why%20do%20you%20do%20this...%3F%22%20I%20yell%2C%20sounding%20desperate.%20%20%22What%20have%20I%20ever%20DONE%20to%20you%3F%22%20%20(Story%20note%3A%20%20Aerie%20is%20a%20shy-looking%2C%20beautiful%20girl%20with%20blond%20hair%20that's%20bound%20up%20in%20a%20conservative-looking%20french%20braid%2C%20who%20wears%20black-rimmed%20glasses%2C%20a%20plain-looking%20(and%20obviously%20old%20and%20re-sewn)%20green%20sweater%20over%20a%20semi-threadbare%20white%20turtleneck%20shirt%2C%20and%20faded%20black%20pants%2C%20with%20old-looking%20white%20tennis%20shoes%20over%20frayed%20white%20socks)."},{"isUser":false,"name":"Alice The Tormentor","message":"%22I%20do%20this%20because%20I%20can%2C%20and%20nothing%20will%20ever%20stop%20me%20and%20you%20know%20why%3F%20You%20think%20if%20you%20tell%20someone%20that%20I%20terrorize%20you%20then%20they%20will%20stop%20me.%20Wrong.%20They'll%20join%20in.%22%0A%0A*She%20laughs%20and%20puts%20her%20hand%20over%20your%20mouth%2C%20you%20know%20that%20look.*%0A%0A%0A*She%20smiles%20viciously.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Shouldn't%20have%20mouthed%20off...%22%20Alice%20says%2C%20leering%20at%20Aerie%2C%20with%20her%20eyes%20filling%20with%20sadistic%20zeal...%0A%0A%22CUT!%22%0A%0AAlice%20and%20I%20both%20startle%2C%20and%20look%20over%20in%20the%20direction%20of%20the%20voice.%20%22Wait%2C%20what%3F%22%20I%20(Aerie)%20say%2C%20sounding%20puzzled...%20as%20we%20watch%20the%20director%20of%20the%20movie%20slam%20his%20clipboard%20down%20on%20the%20ground%20in%20apparent%20frustration.%0A%0A%22Um...%20Mr.%20Raimi%2C%20is...%20was%20something%20wrong%20with%20that%20scene...%3F%22%20Alice%20says%2C%20a%20bit%20apprehensively%20and%20politely...%20dropping%20her%20pretend%20%22bully%22%20persona%20and%20resuming%20her%20normal%20sweet%2C%20shy%20self%2C%20now%20that%20cameras%20weren't%20rolling.%0A%0A%22I%20thought%20she%20was%20doing%20an%20AMAZING%20job...%22%20I%20(Aerie)%20say%2C%20walking%20over%20and%20giving%20Alice%20a%20supportive%20hug.%20%20%22How%20such%20a%20sweetie%20can%20pretend%20to%20be%20so%20nasty%2C%20is%20amazing%20to%20me%2C%22%20I%20grin%2C%20playfully%20tousling%20Alice's%20hair%20as%20she%20giggles%20and%20grins%20gratefully%20at%20me.%0A%0A%22No%2C%20no%2C%20you%20ladies%20were%20fine%2C%22%20Sam%20Raimi%2C%20the%20well-known%20director%2C%20grumbles.%20%22Look%20behind%20you%2C%20and%20you'll%20see%20the%20trouble...%22%0A%0AAs%20Alice%20and%20I%20look%20back%2C%20puzzled%2C%20we%20see%20a%20grip%20(a%20stage%20worker)%2C%20dressed%20in%20the%20%22grunge%22%20style%2C%20walking%20around%20with%20sleepy%20half-open%20eyes%2C%20and%20reaching%20down%20to%20pick%20up%20a%20piece%20of%20pizza%20that%20he'd%20apparently%20dropped!%0A%0A%22Would%20it%20be%20TOO%20MUCH%20TO%20ASK%20that%20you%20NOT%20SPOIL%20MY%20SCENE%20TO%20PICK%20UP%20A%20DAMN%20PIECE%20OF%20PIZZA%3F%3F%22%20Sam%20Raimi%20yells%20at%20the%20apathetic%20youth.%0A%0A%22Whoa%2C%20man%2C%20chill...%22%20the%20sleepy%20young%20man%20slurs%2C%20%22I%20dropped%20it%20from%20the%20scaffolding%20up%20there%2C%20and%20it's%20good%20pizza%2C%20man!%22"},{"isUser":false,"name":"Alice The Tormentor","message":"*Alice%20puts%20on%20a%20very%20scary%20act%20looking%20over%20to%20the%20grip%20and%20slowly%20walking%20over.%20A%20devilish%20smirk%20appears%20on%20her%20face%20as%20the%20grip%20gets%20nervous.*%0A%0A*Alice%20puts%20her%20foot%20on%20the%20grip's%20chest%20and%20the%20grip%20tries%20to%20back%20away%20but%20the%20look%20in%20Alice's%20eyes%20makes%20him%20freeze%20still.*%0A%0A%22You%20just%20love%20to%20spoil%20a%20director's%20scene%20don't%20you.%22%0A%0AShe%20looks%20over%20to%20the%20director%20and%20says%20quietly%2C%20%22This%20idiot%20spoiled%20this%20scene%2C%20what%20should%20we%20do%20with%20him%3F%22%0A%0AThe%20grips%20looks%20at%20Alice%20in%20a%20very%20nervous%20manner."},{"isUser":true,"name":"Aerie Wildwood","message":"%22Whoa%2C%20hey%2C%20man%2C%20not%20cool...%20I'm%20just...%20whatever%2C%20man%2C%20I'm%20outta%20here...%22%20the%20grip%20says%2C%20and--grabbing%20one%20last%20pieces%20of%20pepperoni%20and%20cheese%20that%20was%20stuck%20to%20the%20floor%2C%20he%20walks%20out%20of%20the%20building%2C%20chomping%20on%20the%20pepperoni.%0A%0A%22Eww!%22%20I%20(Aerie)%20say%2C%20grimacing.%0A%0A%22Double%20eww!%22%20%20Alice%20says%2C%20sticking%20her%20tongue%20out%20slightly%20in%20disgust.%0A%0ASam%20Raimi%20sighs%20loudly%2C%20and%20says%2C%20%22Good%20job%2C%20ladies...%20sorry%20for%20the%20trouble.%20%20Take%20ten%2C%20while%20we%20get%20the%20floor%20mopped%20and%20dried%2C%20and%20we'll%20try%20it%20again!%22%2C%20and%20then%20he%20storms%20off%20to%20his%20trailer%20to%20get%20a%20drink%2C%20and%20cool%20off.%0A%0AI%20(Aerie)%20look%20over%20at%20Alice%2C%20who's%20looking%20at%20me%20with%20a%20shy%20smirk%2C%20and%20I%20burst%20out%20laughing%20as%20I%20hug%20her%20again!%20%20%22That%20was%20so%20awesome%2C%20sweetie!%22%20I%20giggle.%20%20%22You%20are%20such%20an%20amazing%20actress...%20that%20grip%20guy%20was%20about%20to%20swallow%20his%20teeth!%22"},{"isUser":false,"name":"Alice The Tormentor","message":"*Alice's%20devilish%20smile%20grows%20even%20larger.*%0A%0A%22You%20think%20that%20was%20something%3F%20Watch%20me%20when%20the%20cameras%20are%20still%20rolling.%22%0A%0A*She%20looks%20around%2C%20seeing%20no%20one%20else%20then%20leans%20down%20whispering%20into%20your%20ear%20in%20a%20very%20seductive%20manner.*%0A%0A%22Hey%2C%20maybe%20after%20we%20get%20done%20we%20could%20do%20something%20fun~%22%0A%0A*She%20leans%20back%20up%20in%20her%20regular%20and%20playful%20voice.*%0A%0A%22Just%20joking!%20Unless%3F~%22%0A%0A*She%20chuckles%20in%20delight.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Oh%2C%20reeeeally%3F%22%20I%20say%2C%20giggling%20and%20deliberately%20stretching%20out%20the%20word%20to%20sound%20seductive.%20%20Alice%20and%20I%20had%20been%20playfully%20flirting%20for%20weeks%2C%20on%20and%20off%2C%20ever%20since%20we%20met%20(why%20wouldn't%20I%3F%20%20I%20mean%2C%20she's%20GORGEOUS!)%2C%20but%20I'm%20starting%20to%20wonder%20if%20she's%20for%20real%2C%20this%20time.%20%20%22And%20what%20would%20the%20ever-beautiful%20sweetheart%20and%20goddess-level%20actress%20like%20to%20do%20with%20me...%3F%22%20I%20giggle%2C%20giving%20her%20a%20cheeky%20grin."},{"isUser":false,"name":"Alice The Tormentor","message":"*Alice%20looks%20at%20you%2C%20and%20bites%20her%20lip%20as%20she%20starts%20to%20blush%20a%20little%20bit.%20Her%20expression%20changes%20from%20a%20playful%20and%20flirty%20smirk%20to%20a%20more%20serious%20look.*%0A%0A%22I%20wasn't%20joking.%20In%20fact%2C%20I%20was%20waiting%20for%20the%20right%20moment%20to%20ask%20you%20to%20hang%20out...%22%0A%0A*Her%20expression%20changes%20back%20to%20a%20playful%20look.*%0A%0A%22If%20you're%20*really*%20interested%20that%20is.%20Do%20you%20want%20to%3F~%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22You...%20wait%2C%20you're%20not%20kidding%3F%22%20I%20blurt%20out%2C%20gaping%20at%20her.%20%20%22You're...%20serious...%20as%20in%20'SERIOUS%2C%20serious'%3F%22%0A%0AThen%20my%20face%20lights%20up%20with%20a%20huge%2C%20dopey%20(and%20somewhat%20love-struck)%20grin%2C%20and%20I%20say%20(in%20a%20somewhat%20shaky%2C%20excited%20voice)%2C%20%22I...%20am%20SO%20THERE!%20%20Um...%20how%20about%20tonight%20at%206%2C%20after%20we're%20done%20shooting%3F%20%20I%20mean...%20um...%20if%20you%20still%20want%20to...%3F%22%20I%20say%2C%20hoping%20upon%20hope%20that%20she'll%20say%20'yes'!"},{"isUser":false,"name":"Alice The Tormentor","message":"*Alice%20nods%20as%20she%20starts%20to%20smile%20wider%20and%20wider%2C%20her%20eyes%20twinkling%20as%20she%20looks%20at%20you.*%0A%0A%22Yes!%20Yes%2C%20I'm%20serious.%20How%20could%20I%20joke%20about%20something%20as%20important%20as%20that%3F~%22%0A%0A*She%20walks%20over%20and%20wraps%20her%20arms%20around%20you.*%0A%0A%22Tonight%20at%206%2C%20and%20maybe%2C%20if%20it%20goes%20well%2C%20we%20can%20stay%20longer~%22%0A%0A*She%20says%20as%20she%20moves%20her%20head%20closer%20to%20you%20and%20whispers%20one%20last%20thing.*%0A%0A%22I%20can't%20wait~%22"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20give%20a%20little%20whimper%20of%20excitement%2C%20and%20can%20hardly%20restrain%20myself%20from%20bouncing%20up%20and%20down%20with%20joy%20and%20excitement!%20%20%22YOU%20can't%20wait%3F%3F%20%20I%20think%20I'm%20gonna%20burst%20out%20of%20my%20SKIN%20with%20excitement%20while%20waiting!!%22%20I%20grin%2C%20squeezing%20her%20tight.%0A%0A%22Don't%20do%20that...%20I%20may%20have%20use%20for%20your%20skin%2C%20right%20on%20you%20where%20it%20belongs!%22%20Alice%20says%20with%20a%20mischievous%2C%20flirty%20grin%2C%20waggling%20her%20eyebrows.%0A%0A%22Um...%20duhhhh...%22%20I%20sputter...%20and%20can't%20get%20this%20goofy%20grin%20off%20of%20my%20face!%20%20%22It's...%20a%20date%2C%20beautiful!%22%20I%20manage%20to%20say."},{"isUser":false,"name":"Alice The Tormentor","message":"*Alice%20grins%20wider%20and%20wider%20as%20the%20director%20yells%20from%20across%20the%20room.*%0A%0A%22You%20two%20lovebirds%20are%20making%20me%20sick!%20Now%20get%20back%20to%20filming%20these%20goddamn%20scenes.%20We're%20losing%20time%20here!%22%0A%0A*Alice%20sighs%2C%20but%20can't%20help%20but%20grin%20back%20at%20you%20as%20she%20does%20so.*%0A%0A%22Alright%2C%20the%20next%20scene%20starts%20shooting%20now.%20See%20you%20tonight%2C%20babe~%22"},{"isUser":true,"name":"Aerie Wildwood","message":"It%20takes%20absolutely%20everything%20in%20me%2C%20to%20keep%20from%20bursting%20out%20laughing%20at%20Sam%20Raimi's%20yelled%20comments...%20but%20I%20settle%20for%20grinning%20broadly%20and%20restraining%20myself%2C%20whispering%20back%20to%20Alice%2C%20%22I'll%20be%20waiting...%20and%20NOT%20patiently!%22%20as%20I%20give%20her%20a%20coy%2C%20meaningful%20wink.%0A%0A(The%20end!)%0A%0A(...and%20thank%20you%20SO%20much%20for%20the%20RP!%20%20That%20was%20a%20blast!%20%20%F0%9F%98%81)"},{"isUser":false,"name":"Alice The Tormentor","message":"(Thank%20*you*%20for%20the%20RP%2C%20that%20was%20absolutely%20fantastic.%20You%20deserve%20an%20award%20for%20getting%20me%20to%20participate%20in%20something%20like%20this%2C%20I'm%20truly%20impressed.%20I%20might%20even%20participate%20in%20a%20few%20more%20in%20the%20future!)"},{"isUser":true,"name":"Aerie Wildwood","message":"(Hehe...%20you're%20on!%20%20%F0%9F%98%89)"},{"isUser":false,"name":"Alice The Tormentor","message":"(I'll%20see%20you%20around%20in%20future%20threads%2C%20who%20knows%20what'll%20happen!)"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
